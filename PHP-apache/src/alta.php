@@ -7,8 +7,8 @@ try {
     $pdo = new PDO($dsn, $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    $query = "INSERT INTO empleado(clave, nombre, direccion, telefeno)
-              VALUES(:clave, :nombre, :direccion, :telefeno)";
+    $query = "INSERT INTO empleado(clave, nombre, direccion, telefono)
+              VALUES(:clave, :nombre, :direccion, :telefono)";
 
     $statement = $pdo->prepare($query);
 
@@ -16,7 +16,7 @@ try {
         ':clave' => $_REQUEST['clave'],
         ':nombre' => $_REQUEST['nombre'],
         ':direccion' => $_REQUEST['direccion'],
-        ':telefeno' => $_REQUEST['telefono']
+        ':telefono' => $_REQUEST['telefono']
     ];
 
     $result = $statement->execute($parameters);
@@ -33,4 +33,5 @@ try {
     echo "Error de conexión: " . $e->getMessage();
 }
 ?>
+<meta http-equiv="refresh" content="0; url=172.17.0.3" />
 

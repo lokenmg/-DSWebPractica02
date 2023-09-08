@@ -20,11 +20,56 @@
 
             <div class="form-group">
 				<label for="telefono">Telefono: </label>
-				<input required name="telefono" type="numer" id="telefono" placeholder="Telefono" class="form-control">
+				<input required name="telefono" type="number" id="telefono" placeholder="Telefono" class="form-control">
 			</div>
 			<button type="submit" class="btn btn-success">Agregar</button>
 		</form>
 	</div>
+</div>
+
+<div>
+<?php
+try {
+    $dsn = "pgsql:host=172.17.0.2;port=5432;dbname=mydb;";
+    $username = "postgres";
+    $password = "postgres";
+
+    $pdo = new PDO($dsn, $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    // Cerrar la conexión PDO
+    
+} catch (PDOException $e) {
+    echo "Error de conexión: " . $e->getMessage();
+}
+
+try {
+    $sql = "SELECT * FROM empleado";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute();
+    
+    if ($stmt->rowCount() > 0) {
+        echo "<table border='1'>";
+        echo "<tr><th>ID</th><th>Nombre</th><th>Direccion</th><th>telefono</th></tr>";
+        
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            echo "<tr>";
+            echo "<td>" . $row["clave"] . "</td>";
+            echo "<td>" . $row["nombre"] . "</td>";
+            echo "<td>" . $row["direccion"] . "</td>";
+			echo "<td>" . $row["telefono"] . "</td>";
+            echo "</tr>";
+        }
+        echo "</table>";
+    } else {
+        echo "No se encontraron resultados";
+    }
+} catch (PDOException $e) {
+    echo "Error: " . $e->getMessage();
+}
+
+// Cerrar la conexión a la base de datos
+$conn = null;
+?>
 </div>
 
 </body>
