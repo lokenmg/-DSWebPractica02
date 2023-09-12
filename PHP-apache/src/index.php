@@ -9,7 +9,7 @@
 
     <?php
 
-    $deshabilitarInput = true;
+    $deshabilitarInput = "";
 
     $selectedClave = null;
     $selectedNombre = "";
@@ -18,6 +18,7 @@
 
     // Obtener datos
     if (isset($_GET['empleado_clave'])) {
+        deshabilitarInput(true);
         try {
 			$dsn = "pgsql:host=172.17.0.2;port=5432;dbname=mydb;";
     		$username = "postgres";
@@ -30,6 +31,7 @@
             $stmt->execute([$selectedId]);
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
+
             //guardar datos del empleado dentro de variables
             $selectedNombre = $row['nombre'];
             $selectedDireccion = $row['direccion'];
@@ -40,6 +42,9 @@
             die('Error en la conexión a la base de datos: ' . $e->getMessage());
         }
 
+    } else {
+        deshabilitarInput(false);
+        echo "No se ha seleccionado ningún empleado";
     }
 
     // Guardar datos
@@ -59,6 +64,8 @@
                 // Actualizar datos del empleado
                 $sql = "INSERT INTO empleado (clave, nombre, direccion, telefono) VALUES (?, ?, ?, ?)";
                 $stmt = $pdo->prepare($sql);
+
+                
                 $stmt->execute([$clave, $nombre, $direccion, $telefono]);
                 echo "Datos guardados correctamente";
             } else {
@@ -69,7 +76,31 @@
             die('Error en la conexión a la base de datos: ' . $e->getMessage());
         }
     }
-    // Limpiar selección
+    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['deleteId'])) {
+        try {
+            $dsn = "pgsql:host=172.17.0.2;port=5432;dbname=mydb;";
+            $username = "postgres";
+            $password = "postgres";
+            $pdo = new PDO($dsn, $username, $password);
+
+            $deleteId = $_POST['deleteId'];
+
+            $sql = "DELETE FROM empleado WHERE clave = ?";
+            $stmt = $pdo->prepare($sql);
+
+            if ($stmt->execute([$deleteId])) {
+                echo "Registro eliminado correctamente.";
+            } else {
+                echo "Error al eliminar el registro.";
+            }
+
+        $pdo = null;
+    } catch (PDOException $e) {
+        die('Error en la conexión a la base de datos: ' . $e->getMessage());
+    }
+}
+
+// Limpiar selección
     function limpiarSeleccion() {
         global $selectedId, $selectedNombre, $selectedDireccion, $selectedTelefono;
         $selectedId = "";
@@ -87,29 +118,30 @@
         return $row['clave'] == $clave;
     }
 
-    function deshabilitarInput() {
-        echo '<script>';
-            echo 'document.getElementById("clave").disabled = false;';
-            echo 'document.getElementById("nombre").disabled = false;';
-            echo 'document.getElementById("direccion").disabled = false;';
-            echo 'document.getElementById("telefono").disabled = false;';
-        echo '</script>';
+    function deshabilitarInput($bandera) {
+        global $deshabilitarInput;
+        if ($bandera) {
+            $deshabilitarInput = "disabled";
+        } else {
+            
+            $deshabilitarInput = "";
+        }
     }
 
     ?>
 
     <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="POST">
         <label for="clave">Clave:</label>
-        <input type="text" name="clave" id="clave" value="<?php echo $selectedId; ?>" disabled required ><br><br>
+        <input type="number" name="clave" id="clave" value="<?php echo $selectedId; ?>" <?php echo $deshabilitarInput?> required><br><br>
 
         <label for="nombre">Nombre:</label>
-        <input type="text" name="nombre" id="nombre" value="<?php echo $selectedNombre; ?>" disabled required ><br><br>
+        <input type="text" name="nombre" id="nombre" value="<?php echo $selectedNombre; ?>" <?php echo $deshabilitarInput?> required><br><br>
 
         <label for="direccion">Dirección:</label>
-        <input type="text" name="direccion" id="direccion" value="<?php echo $selectedDireccion; ?>" disabled required ><br><br>
+        <input type="text" name="direccion" id="direccion" value="<?php echo $selectedDireccion; ?>" <?php echo $deshabilitarInput?> required><br><br>
 
         <label for="telefono">Teléfono:</label>
-        <input type="text" name="telefono" id="telefono" value="<?php echo $selectedTelefono; ?>" <?php echo "disable"?> disabled required ><br><br>
+        <input type="text" name="telefono" id="telefono" value="<?php echo $selectedTelefono; ?>" <?php echo $deshabilitarInput?> required><br><br>
 
         <input type="submit" value="Guardar">
         <input type="button" value="Limpiar Selección" onclick="limpiarSeleccion()">
@@ -122,6 +154,7 @@
             <th>Nombre</th>
             <th>Dirección</th>
             <th>Teléfono</th>
+            <th>Acciones</th>
         </tr>
         <?php
             
@@ -139,9 +172,17 @@
 
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 echo "<tr>";
-                echo "<td><a href=\"{$_SERVER['PHP_SELF']}?empleado_clave={$row['clave']}\">{$row['clave']}</a></td>";
+                echo "<td><a href=\"{$_SERVER['PHP_SELF']}?empleado_clave={$row['clave']}\">{$row['clave']}</a></td>";                
                 echo "<td>" . $row['nombre'] . "</td>";
                 echo "<td>" . $row['direccion'] . "</td>";
+
+                echo "<td>" . $row['telefeno'] . "</td>";
+                echo "<td>";
+                echo "<form action=\"".$_SERVER['PHP_SELF']."\" method=\"POST\">";
+                echo "<input type=\"hidden\" name=\"deleteId\" value=\"" . $row['clave'] . "\">";
+                echo "<input type=\"button\" value=\"Eliminar\" onclick=\"confirmarEliminacion(" . $row['clave'] . ")\">";
+                echo "</form>";
+                echo "</td>";
                 echo "<td>" . $row['telefono'] . "</td>";
                 echo "</tr>";
             }
@@ -158,10 +199,21 @@
         function limpiarSeleccion() {
             window.location.href = "<?php echo $_SERVER['PHP_SELF']; ?>";
         }
+        function confirmarEliminacion(id) {
+            var confirmacion = confirm("¿Seguro que deseas eliminar el registro con ID " + id + "?");
+            
+            if (confirmacion) {
+                var form = document.querySelector("form input[name=deleteId][value='" + id + "']").form;
+                form.submit();
+            }
+        }
+    </script>
 </script>
-<?php
-    if(isset($_GET['empleado_clave'])){
-        deshabilitarInput();
-    }
-?>
+<script>
+    <?php
+        if (isset($_GET['empleado_clave'])) {
+            deshabilitarInput();
+        }
+    ?>
+</script>
 </html>
