@@ -15,7 +15,7 @@
 
     if (isset($_GET['empleado_clave'])) {
         try {
-			$dsn = "pgsql:host=172.17.0.2;port=5432;dbname=mydb;";
+			$dsn = "pgsql:host=172.17.0.3;port=5432;dbname=mydb;";
     		$username = "postgres";
     		$password = "postgres";
 			$pdo = new PDO($dsn, $username, $password);
@@ -38,7 +38,7 @@
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         try {
-			$dsn = "pgsql:host=172.17.0.2;port=5432;dbname=mydb;";
+			$dsn = "pgsql:host=172.17.0.3;port=5432;dbname=mydb;";
     		$username = "postgres";
     		$password = "postgres";
 			$pdo = new PDO($dsn, $username, $password);
@@ -57,6 +57,15 @@
             die('Error en la conexión a la base de datos: ' . $e->getMessage());
         }
     }
+
+    function limpiarSeleccion() {
+        global $selectedId, $selectedNombre, $selectedDireccion, $selectedTelefono;
+        $selectedId = "";
+        $selectedNombre = "";
+        $selectedDireccion = "";
+        $selectedTelefeno = "";
+    }
+
     ?>
 
     <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="POST">
@@ -73,6 +82,7 @@
         <input type="text" name="telefeno" id="telefeno" value="<?php echo $selectedTelefeno; ?>" required><br><br>
 
         <input type="submit" value="Guardar">
+        <input type="button" value="Limpiar Selección" onclick="limpiarSeleccion()">
     </form>
 
     <h2>Datos Guardados</h2>
@@ -85,7 +95,7 @@
         </tr>
         <?php
         try {
-			$dsn = "pgsql:host=172.17.0.2;port=5432;dbname=mydb;";
+			$dsn = "pgsql:host=172.17.0.3;port=5432;dbname=mydb;";
     		$username = "postgres";
     		$password = "postgres";
 			$pdo = new PDO($dsn, $username, $password);
@@ -110,4 +120,9 @@
         ?>
     </table>
 </body>
+<script>
+        function limpiarSeleccion() {
+            window.location.href = "<?php echo $_SERVER['PHP_SELF']; ?>";
+        }
+    </script>
 </html>
