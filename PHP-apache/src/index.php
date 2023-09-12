@@ -44,13 +44,19 @@
 			$pdo = new PDO($dsn, $username, $password);
 
             $clave = $_POST['clave'];
-            $nombre = $_POST['nombre'];
-            $direccion = $_POST['direccion'];
-            $telefeno = $_POST['telefeno'];
+            if (!datoExistente($pdo, $clave)) {
+                $nombre = $_POST['nombre'];
+                $direccion = $_POST['direccion'];
+                $telefeno = $_POST['telefeno'];
 
-            $sql = "INSERT INTO empleado (clave, nombre, direccion, telefeno) VALUES (?, ?, ?, ?)";
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([$clave, $nombre, $direccion, $telefeno]);
+                // Actualizar datos del empleado
+                $sql = "INSERT INTO empleado (clave, nombre, direccion, telefeno) VALUES (?, ?, ?, ?)";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([$clave, $nombre, $direccion, $telefeno]);
+                echo "Datos guardados correctamente";
+            } else {
+                echo "La clave ya existe";
+            }
 
             $pdo = null;
         } catch (PDOException $e) {
@@ -89,6 +95,24 @@
         $selectedNombre = "";
         $selectedDireccion = "";
         $selectedTelefeno = "";
+    }
+
+    function datoExistente($pdo, $clave) {
+        $sql = "SELECT clave FROM empleado WHERE clave = ?";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$clave]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        // Si existe el dato, regresa true
+        return $row['clave'] == $clave;
+    }
+
+    function deshabilitarInput() {
+        echo '<script>';
+            echo 'document.getElementById("clave").disabled = false;';
+            echo 'document.getElementById("nombre").disabled = false;';
+            echo 'document.getElementById("direccion").disabled = false;';
+            echo 'document.getElementById("telefeno").disabled = false;';
+        echo '</script>';
     }
 
     ?>
@@ -164,5 +188,12 @@
                 form.submit();
             }
         }
-    </script>
+</script>
+<script>
+    <?php
+        if (isset($_GET['empleado_clave'])) {
+            deshabilitarInput();
+        }
+    ?>
+</script>
 </html>
