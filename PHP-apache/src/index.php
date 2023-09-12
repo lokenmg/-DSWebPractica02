@@ -8,9 +8,6 @@
     <h1>Formulario</h1>
 
     <?php
-
-    $deshabilitarInput = true;
-
     $selectedClave = null;
     $selectedNombre = "";
     $selectedDireccion = "";
@@ -65,13 +62,29 @@
                 $stmt->execute([$clave, $nombre, $direccion, $telefono]);
                 echo "Datos guardados correctamente";
             } else {
-                echo "La clave ya existe";
+                $selectedId = $clave;
+
+                $sql = "SELECT nombre, direccion, telefono FROM empleado WHERE clave = ?";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([$selectedId]);
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                $nombre = $_POST['nombre'];
+                $direccion = $_POST['direccion'];
+                $telefono = $_POST['telefono'];
+
+                $sql = "UPDATE empleado SET nombre = ?, direccion = ?, telefono = ? WHERE clave = ?";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([$nombre, $direccion, $telefono, $selectedId]);
+                echo "Datos actualizados correctamente";
             }
+
             $pdo = null;
         } catch (PDOException $e) {
             die('Error en la conexión a la base de datos: ' . $e->getMessage());
         }
     }
+
     if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['deleteId'])) {
         try {
             $dsn = $ip;
@@ -139,7 +152,7 @@
         <input type="text" name="telefono" id="telefono" value="<?php echo $selectedTelefono; ?>" <?php echo "disable"?> required><br><br>
 
         <input type="submit" value="Guardar">
-        <input type="button" value="Limpiar selección" onclick="limpiarSeleccion()">
+        <input type="button" value="Limpiar Selección" onclick="limpiarSeleccion()">
     </form>
     
     <h2>Datos Guardados</h2>
@@ -170,7 +183,6 @@
                 echo "<td><a href=\"{$_SERVER['PHP_SELF']}?empleado_clave={$row['clave']}\">{$row['clave']}</a></td>";                
                 echo "<td>" . $row['nombre'] . "</td>";
                 echo "<td>" . $row['direccion'] . "</td>";
-
                 echo "<td>" . $row['telefono'] . "</td>";
                 echo "<td>";
                 echo "<form action=\"".$_SERVER['PHP_SELF']."\" method=\"POST\">";
@@ -186,7 +198,6 @@
             die('Error en la conexión a la base de datos: ' . $e->getMessage());
         }
         ?>
-
     </table>
 </body>
 <script>
@@ -201,7 +212,17 @@
                 form.submit();
             }
         }
-    </script>
+
+        function mostrarDatos(clave) {
+        // Obtener los datos del empleado y mostrarlos en los campos del formulario
+        var idInput = document.getElementById("clave");
+        var nombreInput = document.getElementById("Nombre");
+        var direccionInput = document.getElementById("direccion");
+        var telefonoInput = document.getElementById("telefono");
+
+        idInput.value = clave; // Establecer el ID en el campo ID (oculto)
+
+        }
 </script>
 <script>
     <?php
