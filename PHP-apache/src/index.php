@@ -18,6 +18,7 @@
 
     // Obtener datos
     if (isset($_GET['empleado_clave'])) {
+        deshabilitarInput(true);
         try {
 			$dsn = $ip;
     		$username = "postgres";
@@ -30,6 +31,7 @@
             $stmt->execute([$selectedId]);
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
+
             //guardar datos del empleado dentro de variables
             $selectedNombre = $row['nombre'];
             $selectedDireccion = $row['direccion'];
@@ -40,6 +42,9 @@
             die('Error en la conexión a la base de datos: ' . $e->getMessage());
         }
 
+    } else {
+        deshabilitarInput(false);
+        echo "No se ha seleccionado ningún empleado";
     }
 
     // Guardar datos
@@ -59,6 +64,8 @@
                 // Actualizar datos del empleado
                 $sql = "INSERT INTO empleado (clave, nombre, direccion, telefono) VALUES (?, ?, ?, ?)";
                 $stmt = $pdo->prepare($sql);
+
+                
                 $stmt->execute([$clave, $nombre, $direccion, $telefono]);
                 echo "Datos guardados correctamente";
             } else {
@@ -127,29 +134,30 @@
         return $row['clave'] == $clave;
     }
 
-    function deshabilitarInput() {
-        echo '<script>';
-            echo 'document.getElementById("clave").disabled = false;';
-            echo 'document.getElementById("nombre").disabled = false;';
-            echo 'document.getElementById("direccion").disabled = false;';
-            echo 'document.getElementById("telefono").disabled = false;';
-        echo '</script>';
+    function deshabilitarInput($bandera) {
+        global $deshabilitarInput;
+        if ($bandera) {
+            $deshabilitarInput = "disabled";
+        } else {
+            
+            $deshabilitarInput = "";
+        }
     }
 
     ?>
 
     <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="POST">
         <label for="clave">Clave:</label>
-        <input type="text" name="clave" id="clave" value="<?php echo $selectedId; ?>" required><br><br>
+        <input type="number" name="clave" id="clave" value="<?php echo $selectedId; ?>" <?php echo $deshabilitarInput?> required><br><br>
 
         <label for="nombre">Nombre:</label>
-        <input type="text" name="nombre" id="nombre" value="<?php echo $selectedNombre; ?>" required><br><br>
+        <input type="text" name="nombre" id="nombre" value="<?php echo $selectedNombre; ?>" <?php echo $deshabilitarInput?> required><br><br>
 
         <label for="direccion">Dirección:</label>
-        <input type="text" name="direccion" id="direccion" value="<?php echo $selectedDireccion; ?>" required><br><br>
+        <input type="text" name="direccion" id="direccion" value="<?php echo $selectedDireccion; ?>" <?php echo $deshabilitarInput?> required><br><br>
 
         <label for="telefono">Teléfono:</label>
-        <input type="text" name="telefono" id="telefono" value="<?php echo $selectedTelefono; ?>" <?php echo "disable"?> required><br><br>
+        <input type="text" name="telefono" id="telefono" value="<?php echo $selectedTelefono; ?>" <?php echo $deshabilitarInput?> required><br><br>
 
         <input type="submit" value="Guardar">
         <input type="button" value="Limpiar Selección" onclick="limpiarSeleccion()">
