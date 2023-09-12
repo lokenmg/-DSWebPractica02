@@ -58,30 +58,24 @@
         }
     }
 
-    // Procesar la eliminación del empleado
     if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['deleteId'])) {
         try {
-        // Conexión a la base de datos PostgreSQL usando PDO
             $dsn = "pgsql:host=172.17.0.3;port=5432;dbname=mydb;";
             $username = "postgres";
             $password = "postgres";
             $pdo = new PDO($dsn, $username, $password);
 
-        // Obtener el ID del empleado a eliminar
             $deleteId = $_POST['deleteId'];
 
-        // Preparar la consulta SQL para eliminar el registro
             $sql = "DELETE FROM empleado WHERE clave = ?";
             $stmt = $pdo->prepare($sql);
 
-        // Ejecutar la consulta para eliminar el registro
             if ($stmt->execute([$deleteId])) {
                 echo "Registro eliminado correctamente.";
             } else {
                 echo "Error al eliminar el registro.";
             }
 
-        // Cerrar la conexión
         $pdo = null;
     } catch (PDOException $e) {
         die('Error en la conexión a la base de datos: ' . $e->getMessage());
