@@ -139,7 +139,7 @@
         <input type="text" name="telefono" id="telefono" value="<?php echo $selectedTelefono; ?>" <?php echo "disable"?> required><br><br>
 
         <input type="submit" value="Guardar">
-        <input type="button" value="Limpiar Selección" onclick="limpiarSeleccion()">
+        <input type="button" value="Limpiar selección" onclick="limpiarSeleccion()">
     </form>
     
     <h2>Datos Guardados</h2>
