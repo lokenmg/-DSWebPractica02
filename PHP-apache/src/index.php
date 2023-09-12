@@ -132,7 +132,6 @@
 
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 echo "<tr>";
-                echo "<td><a href=\"{$_SERVER['PHP_SELF']}?empleado_clave={$row['clave']}\">{$row['clave']}</a></td>";                echo "<td>" . $row['nombre'] . "</td>";
                 echo "<td>" . $row['direccion'] . "</td>";
                 echo "<td>" . $row['telefeno'] . "</td>";
                 echo "<td>";
