@@ -79,6 +79,7 @@
     if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['deleteId'])) {
         try {
             $dsn = "pgsql:host=172.17.0.2;port=5432;dbname=mydb;";
+
             $username = "postgres";
             $password = "postgres";
             $pdo = new PDO($dsn, $username, $password);
