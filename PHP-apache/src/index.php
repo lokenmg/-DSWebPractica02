@@ -100,16 +100,16 @@
 
     <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="POST">
         <label for="clave">Clave:</label>
-        <input type="text" name="clave" id="clave" value="<?php echo $selectedId; ?>" required><br><br>
+        <input type="text" name="clave" id="clave" value="<?php echo $selectedId; ?>" disabled required ><br><br>
 
         <label for="nombre">Nombre:</label>
-        <input type="text" name="nombre" id="nombre" value="<?php echo $selectedNombre; ?>" required><br><br>
+        <input type="text" name="nombre" id="nombre" value="<?php echo $selectedNombre; ?>" disabled required ><br><br>
 
         <label for="direccion">Dirección:</label>
-        <input type="text" name="direccion" id="direccion" value="<?php echo $selectedDireccion; ?>" required><br><br>
+        <input type="text" name="direccion" id="direccion" value="<?php echo $selectedDireccion; ?>" disabled required ><br><br>
 
         <label for="telefono">Teléfono:</label>
-        <input type="text" name="telefono" id="telefono" value="<?php echo $selectedTelefono; ?>" <?php echo "disable"?> required><br><br>
+        <input type="text" name="telefono" id="telefono" value="<?php echo $selectedTelefono; ?>" <?php echo "disable"?> disabled required ><br><br>
 
         <input type="submit" value="Guardar">
         <input type="button" value="Limpiar Selección" onclick="limpiarSeleccion()">
@@ -159,11 +159,9 @@
             window.location.href = "<?php echo $_SERVER['PHP_SELF']; ?>";
         }
 </script>
-<script>
-    <?php
-        if (isset($_GET['empleado_clave'])) {
-            deshabilitarInput();
-        }
-    ?>
-</script>
+<?php
+    if(isset($_GET['empleado_clave'])){
+        deshabilitarInput();
+    }
+?>
 </html>
