@@ -58,6 +58,37 @@
         }
     }
 
+    // Procesar la eliminación del empleado
+    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['deleteId'])) {
+        try {
+        // Conexión a la base de datos PostgreSQL usando PDO
+            $dsn = "pgsql:host=172.17.0.3;port=5432;dbname=mydb;";
+            $username = "postgres";
+            $password = "postgres";
+            $pdo = new PDO($dsn, $username, $password);
+
+        // Obtener el ID del empleado a eliminar
+            $deleteId = $_POST['deleteId'];
+
+        // Preparar la consulta SQL para eliminar el registro
+            $sql = "DELETE FROM empleado WHERE clave = ?";
+            $stmt = $pdo->prepare($sql);
+
+        // Ejecutar la consulta para eliminar el registro
+            if ($stmt->execute([$deleteId])) {
+                echo "Registro eliminado correctamente.";
+            } else {
+                echo "Error al eliminar el registro.";
+            }
+
+        // Cerrar la conexión
+        $pdo = null;
+    } catch (PDOException $e) {
+        die('Error en la conexión a la base de datos: ' . $e->getMessage());
+    }
+}
+
+
     function limpiarSeleccion() {
         global $selectedId, $selectedNombre, $selectedDireccion, $selectedTelefono;
         $selectedId = "";
@@ -92,6 +123,7 @@
             <th>Nombre</th>
             <th>Dirección</th>
             <th>Teléfono</th>
+            <th>Acciones</th>
         </tr>
         <?php
         try {
@@ -106,10 +138,16 @@
 
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 echo "<tr>";
-                echo "<td><a href=\"{$_SERVER['PHP_SELF']}?empleado_clave={$row['clave']}\">{$row['clave']}</a></td>";
+                echo "<td><a href=\"".$_SERVER['PHP_SELF']."?empleado_clave=".$row['clave']."\">" . $row['clave'] . "</a></td>";
                 echo "<td>" . $row['nombre'] . "</td>";
                 echo "<td>" . $row['direccion'] . "</td>";
                 echo "<td>" . $row['telefeno'] . "</td>";
+                echo "<td>";
+                echo "<form action=\"".$_SERVER['PHP_SELF']."\" method=\"POST\">";
+                echo "<input type=\"hidden\" name=\"deleteId\" value=\"" . $row['clave'] . "\">";
+                echo "<input type=\"button\" value=\"Eliminar\" onclick=\"confirmarEliminacion(" . $row['clave'] . ")\">";
+                echo "</form>";
+                echo "</td>";
                 echo "</tr>";
             }
 
@@ -123,6 +161,14 @@
 <script>
         function limpiarSeleccion() {
             window.location.href = "<?php echo $_SERVER['PHP_SELF']; ?>";
+        }
+        function confirmarEliminacion(id) {
+            var confirmacion = confirm("¿Seguro que deseas eliminar el registro con ID " + id + "?");
+            
+            if (confirmacion) {
+                var form = document.querySelector("form input[name=deleteId][value='" + id + "']").form;
+                form.submit();
+            }
         }
     </script>
 </html>
