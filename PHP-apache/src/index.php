@@ -16,10 +16,13 @@
     $selectedDireccion = "";
     $selectedTelefono = "";
 
+    //direccion ip del contenedor de postgres
+    $ip = "pgsql:host=172.17.0.2;port=5432;dbname=mydb;";
+
     // Obtener datos
     if (isset($_GET['empleado_clave'])) {
         try {
-			$dsn = "pgsql:host=172.17.0.2;port=5432;dbname=mydb;";
+			$dsn = $ip;
     		$username = "postgres";
     		$password = "postgres";
 			$pdo = new PDO($dsn, $username, $password);
@@ -45,7 +48,7 @@
     // Guardar datos
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         try {
-			$dsn = "pgsql:host=172.17.0.2;port=5432;dbname=mydb;";
+			$dsn = $ip;
     		$username = "postgres";
     		$password = "postgres";
 			$pdo = new PDO($dsn, $username, $password);
@@ -71,7 +74,7 @@
     }
     if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['deleteId'])) {
         try {
-            $dsn = "pgsql:host=172.17.0.3;port=5432;dbname=mydb;";
+            $dsn = $ip;
             $username = "postgres";
             $password = "postgres";
             $pdo = new PDO($dsn, $username, $password);
@@ -153,7 +156,7 @@
 
 
         try {
-			$dsn = "pgsql:host=172.17.0.2;port=5432;dbname=mydb;";
+			$dsn = $ip;
     		$username = "postgres";
     		$password = "postgres";
 			$pdo = new PDO($dsn, $username, $password);
@@ -168,14 +171,13 @@
                 echo "<td>" . $row['nombre'] . "</td>";
                 echo "<td>" . $row['direccion'] . "</td>";
 
-                echo "<td>" . $row['telefeno'] . "</td>";
+                echo "<td>" . $row['telefono'] . "</td>";
                 echo "<td>";
                 echo "<form action=\"".$_SERVER['PHP_SELF']."\" method=\"POST\">";
                 echo "<input type=\"hidden\" name=\"deleteId\" value=\"" . $row['clave'] . "\">";
                 echo "<input type=\"button\" value=\"Eliminar\" onclick=\"confirmarEliminacion(" . $row['clave'] . ")\">";
                 echo "</form>";
                 echo "</td>";
-                echo "<td>" . $row['telefono'] . "</td>";
                 echo "</tr>";
             }
 
