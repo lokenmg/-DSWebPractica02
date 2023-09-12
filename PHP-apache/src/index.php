@@ -8,67 +8,56 @@
     <h1>Formulario</h1>
 
     <?php
-
-    $deshabilitarInput = true;
-
     $selectedClave = null;
     $selectedNombre = "";
     $selectedDireccion = "";
-    $selectedTelefono = "";
+    $selectedTelefeno = "";
 
-    // Obtener datos
     if (isset($_GET['empleado_clave'])) {
         try {
-			$dsn = "pgsql:host=172.17.0.2;port=5432;dbname=mydb;";
+			$dsn = "pgsql:host=172.17.0.3;port=5432;dbname=mydb;";
     		$username = "postgres";
     		$password = "postgres";
 			$pdo = new PDO($dsn, $username, $password);
             $selectedId = $_GET['empleado_clave'];
-            // Obtener datos del empleado
-            $sql = "SELECT nombre, direccion, telefono FROM empleado WHERE clave = ?";
+
+            $sql = "SELECT nombre, direccion, telefeno FROM empleado WHERE clave = ?";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([$selectedId]);
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            //guardar datos del empleado dentro de variables
             $selectedNombre = $row['nombre'];
             $selectedDireccion = $row['direccion'];
-            $selectedTelefono = $row['telefono'];
+            $selectedTelefeno = $row['telefeno'];
 
             $pdo = null;
         } catch (PDOException $e) {
             die('Error en la conexión a la base de datos: ' . $e->getMessage());
         }
-
     }
 
-    // Guardar datos
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         try {
-			$dsn = "pgsql:host=172.17.0.2;port=5432;dbname=mydb;";
+			$dsn = "pgsql:host=172.17.0.3;port=5432;dbname=mydb;";
     		$username = "postgres";
     		$password = "postgres";
 			$pdo = new PDO($dsn, $username, $password);
 
             $clave = $_POST['clave'];
-            if (!datoExistente($pdo, $clave)) {
-                $nombre = $_POST['nombre'];
-                $direccion = $_POST['direccion'];
-                $telefono = $_POST['telefono'];
+            $nombre = $_POST['nombre'];
+            $direccion = $_POST['direccion'];
+            $telefeno = $_POST['telefeno'];
 
-                // Actualizar datos del empleado
-                $sql = "INSERT INTO empleado (clave, nombre, direccion, telefono) VALUES (?, ?, ?, ?)";
-                $stmt = $pdo->prepare($sql);
-                $stmt->execute([$clave, $nombre, $direccion, $telefono]);
-                echo "Datos guardados correctamente";
-            } else {
-                echo "La clave ya existe";
-            }
+            $sql = "INSERT INTO empleado (clave, nombre, direccion, telefeno) VALUES (?, ?, ?, ?)";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([$clave, $nombre, $direccion, $telefeno]);
+
             $pdo = null;
         } catch (PDOException $e) {
             die('Error en la conexión a la base de datos: ' . $e->getMessage());
         }
     }
+
     if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['deleteId'])) {
         try {
             $dsn = "pgsql:host=172.17.0.3;port=5432;dbname=mydb;";
@@ -93,31 +82,13 @@
     }
 }
 
-// Limpiar selección
+
     function limpiarSeleccion() {
         global $selectedId, $selectedNombre, $selectedDireccion, $selectedTelefono;
         $selectedId = "";
         $selectedNombre = "";
         $selectedDireccion = "";
-        $selectedTelefono = "";
-    }
-
-    function datoExistente($pdo, $clave) {
-        $sql = "SELECT clave FROM empleado WHERE clave = ?";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([$clave]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        // Si existe el dato, regresa true
-        return $row['clave'] == $clave;
-    }
-
-    function deshabilitarInput() {
-        echo '<script>';
-            echo 'document.getElementById("clave").disabled = false;';
-            echo 'document.getElementById("nombre").disabled = false;';
-            echo 'document.getElementById("direccion").disabled = false;';
-            echo 'document.getElementById("telefono").disabled = false;';
-        echo '</script>';
+        $selectedTelefeno = "";
     }
 
     ?>
@@ -133,12 +104,12 @@
         <input type="text" name="direccion" id="direccion" value="<?php echo $selectedDireccion; ?>" required><br><br>
 
         <label for="telefono">Teléfono:</label>
-        <input type="text" name="telefono" id="telefono" value="<?php echo $selectedTelefono; ?>" <?php echo "disable"?> required><br><br>
+        <input type="text" name="telefeno" id="telefeno" value="<?php echo $selectedTelefeno; ?>" required><br><br>
 
         <input type="submit" value="Guardar">
         <input type="button" value="Limpiar Selección" onclick="limpiarSeleccion()">
     </form>
-    
+
     <h2>Datos Guardados</h2>
     <table border="1">
         <tr>
@@ -149,16 +120,13 @@
             <th>Acciones</th>
         </tr>
         <?php
-            
-
-
         try {
-			$dsn = "pgsql:host=172.17.0.2;port=5432;dbname=mydb;";
+			$dsn = "pgsql:host=172.17.0.3;port=5432;dbname=mydb;";
     		$username = "postgres";
     		$password = "postgres";
 			$pdo = new PDO($dsn, $username, $password);
 
-            $sql = "SELECT clave, nombre, direccion, telefono FROM empleado";
+            $sql = "SELECT clave, nombre, direccion, telefeno FROM empleado";
             $stmt = $pdo->prepare($sql);
             $stmt->execute();
 
@@ -167,7 +135,6 @@
                 echo "<td><a href=\"{$_SERVER['PHP_SELF']}?empleado_clave={$row['clave']}\">{$row['clave']}</a></td>";                
                 echo "<td>" . $row['nombre'] . "</td>";
                 echo "<td>" . $row['direccion'] . "</td>";
-
                 echo "<td>" . $row['telefeno'] . "</td>";
                 echo "<td>";
                 echo "<form action=\"".$_SERVER['PHP_SELF']."\" method=\"POST\">";
@@ -175,7 +142,6 @@
                 echo "<input type=\"button\" value=\"Eliminar\" onclick=\"confirmarEliminacion(" . $row['clave'] . ")\">";
                 echo "</form>";
                 echo "</td>";
-                echo "<td>" . $row['telefono'] . "</td>";
                 echo "</tr>";
             }
 
@@ -184,7 +150,6 @@
             die('Error en la conexión a la base de datos: ' . $e->getMessage());
         }
         ?>
-
     </table>
 </body>
 <script>
@@ -200,12 +165,4 @@
             }
         }
     </script>
-</script>
-<script>
-    <?php
-        if (isset($_GET['empleado_clave'])) {
-            deshabilitarInput();
-        }
-    ?>
-</script>
 </html>
