@@ -54,8 +54,23 @@
                 $stmt = $pdo->prepare($sql);
                 $stmt->execute([$clave, $nombre, $direccion, $telefeno]);
                 echo "Datos guardados correctamente";
-            } else {
-                echo "La clave ya existe";
+            } else 
+            {
+                $selectedId = $clave;
+
+                $sql = "SELECT nombre, direccion, telefeno FROM empleado WHERE clave = ?";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([$selectedId]);
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                $nombre = $_POST['nombre'];
+                $direccion = $_POST['direccion'];
+                $telefeno = $_POST['telefeno'];
+
+                $sql = "UPDATE empleado SET nombre = ?, direccion = ?, telefeno = ? WHERE clave = ?";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([$nombre, $direccion, $telefeno, $selectedId]);
+                echo "Datos actualizados correctamente";
             }
 
             $pdo = null;
@@ -187,6 +202,17 @@
                 var form = document.querySelector("form input[name=deleteId][value='" + id + "']").form;
                 form.submit();
             }
+        }
+
+        function mostrarDatos(clave) {
+        // Obtener los datos del empleado y mostrarlos en los campos del formulario
+        var idInput = document.getElementById("clave");
+        var nombreInput = document.getElementById("Nombre");
+        var direccionInput = document.getElementById("direccion");
+        var telefonoInput = document.getElementById("telefeno");
+
+        idInput.value = clave; // Establecer el ID en el campo ID (oculto)
+
         }
 </script>
 <script>
